@@ -35,8 +35,12 @@ partition() {
                 size_devicesize="$(human_size_to_mb ${size} ${device_size})"
                 newsize="$(echo ${size_devicesize} | cut -d '|' -f1)"
                 [ "${newsize}" == "-1" ] && die "Could not translate size '${size}' to a usable value"
+                if [ "${newsize}" == "" ]; then
+                    inputsize=""
+                else
+                    inputsize="${newsize}M"
+                fi
                 device_size="$(echo ${size_devicesize} | cut -d '|' -f2)"
-                inputsize="${newsize}"
             fi
             [ -n "${bootable}" ] && bootable="*"
             
@@ -493,14 +497,18 @@ set_locale() {
 
 prepare_chroot() {
     debug prepare_chroot "copying /etc/resolv.conf into chroot"
-    spawn "cp /etc/resolv.conf ${chroot_dir}/etc/resolv.conf"   || die "Could not copy /etc/resolv.conf into chroot"
+    spawn "cp --dereference /etc/resolv.conf ${chroot_dir}/etc/resolv.conf"   || die "Could not copy /etc/resolv.conf into chroot"
     debug prepare_chroot "mounting proc"
     spawn "mount -t proc none ${chroot_dir}/proc"               || die "Could not mount proc"
     debug prepare_chroot "bind-mounting /dev"
     spawn "mount -o rbind /dev ${chroot_dir}/dev/"              || die "Could not rbind-mount /dev"
+    #debug prepare_chroot "make-rslave /dev"
+    #spawn "mount -o make-rslave ${chroot_dir}/dev/"             || die "Could not make-rslave /dev"
     debug prepare_chroot "bind-mounting /sys"
     [ -d ${chroot_dir}/sys ] || mkdir ${chroot_dir}/sys
     spawn "mount -o bind /sys ${chroot_dir}/sys"                || die "Could not bind-mount /sys"
+    #debug prepare_chroot "make-rslave /sys"
+    #spawn "mount -o make-rslave ${chroot_dir}/sys"              || die "Could not make-rslave /sys"
 }
 
 setup_fstab() {
