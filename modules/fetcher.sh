@@ -57,6 +57,7 @@ fetch_file() {
     
     uri=$(echo "${uri}" | sed -e 's|^file://||')
     debug fetch_file "Symlinking local file ${uri} to ${localfile}"
+    rm -f "${localfile}"
     ln -s "${uri}" "${localfile}"
 }
 
