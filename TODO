@@ -20,3 +20,15 @@
 --------------------------
 = FIXME for next release =
 --------------------------
+-----------------------------------------------------
+= Issues found when install Gentoo 20180315 Release = 
+-----------------------------------------------------
+- "sfdisk -uM" is deprecated. So the part command in profile not work with latest livecd, have to be fixed
+    Currently it use the following syntax to create partition.
+    echo -e ",100,83,\n,2048,82,\n,,83," | sfdisk -uM /dev/sda 
+    The right way to create partition is to pass number together with unit:
+    echo -e ",100M,83,\n,2048M,82,\n,,83," | sfdisk /dev/sda
+- "mount -t ext2 /dev/sda1 /mnt/gentoo/boot -o defaults", not work because boot dir not yet cretaed under /mnt/gentoo
+    The right way to fix the issues is to create /mnt/gentoo/bot immediatly after the /dev/sda3 is mounted to /mnt/gentoo
+- grub:2 should use the same command as grub version 1.
+- fetch_file should delete link file first to avoid link error.
